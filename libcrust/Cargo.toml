@@ -1,0 +1,11 @@
+[package]
+name = "crust"
+version = "0.1.0"
+authors = ["missingno"]
+edition = "2018"
+
+[lib]
+crate-type = ["cdylib"]
+
+[build-dependencies]
+cbindgen = "0.13.1"
