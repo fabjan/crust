@@ -1,10 +1,17 @@
 mod backend;
 
+use std::ffi::CStr;
+use std::os::raw::c_char;
+
 use backend::Backend;
 
 #[no_mangle]
-pub extern "C" fn be_make() -> *mut Backend {
-    let be = Backend::new();
+pub extern "C" fn be_make(name: *const c_char) -> *mut Backend {
+    let name = unsafe {
+        CStr::from_ptr(name).to_str()
+            .expect("cannot get name")
+    };
+    let be = Backend::new(name);
     Box::into_raw(Box::new(be))
 }
 

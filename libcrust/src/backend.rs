@@ -8,12 +8,13 @@ pub struct Message {
 }
 
 pub struct Backend {
+    name: String,
     tx: Option<Sender<Message>>,
 }
 
 impl Backend {
-    pub fn new() -> Backend {
-        Backend { tx: None }
+    pub fn new(name: &str) -> Backend {
+        Backend { name: String::from(name), tx: None }
     }
 }
 
@@ -26,9 +27,12 @@ impl Drop for Backend {
 impl Backend {
     pub fn start(&mut self) {
         let (tx, rx) = mpsc::channel();
+        let name = self.name.clone();
         thread::spawn(move || {
+            let mut counter = 0;
             for m in rx.iter() {
-                println!("Got: {:?}", m);
+                counter += 1;
+                println!("[{}] Got {:?} (message no. {})", name, m, counter);
             }
         });
         self.tx = Some(tx);
