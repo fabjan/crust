@@ -11,3 +11,6 @@ target/crust: main.cpp libcrust/target/release/libcrust.$(LIBSUFFIX)
 
 libcrust/target/release/libcrust.$(LIBSUFFIX): $(RUSTSOURCES)
 	cd libcrust && cargo build --release
+
+run: target/crust
+	./target/crust
