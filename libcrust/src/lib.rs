@@ -1,44 +1,31 @@
-#[derive(Copy, Clone)]
-#[repr(C)]
-pub struct Baz {
-    pub qux: f64,
-}
+mod backend;
 
-pub struct Foo {
-    pub bar: i32,
-    pub baz: Baz,
+use backend::Backend;
+
+#[no_mangle]
+pub extern "C" fn be_make() -> *mut Backend {
+    let be = Backend::new();
+    Box::into_raw(Box::new(be))
 }
 
 #[no_mangle]
-pub extern "C" fn make(bar: i32) -> *mut Foo {
-    let baz = Baz { qux: 1.0 / (bar as f64) };
-    let foo = Foo { bar, baz };
-    Box::into_raw(Box::new(foo))
+pub extern "C" fn be_start(be: &mut Backend) {
+    be.start();
 }
 
 #[no_mangle]
-pub extern "C" fn bump(f: &mut Foo) {
-    f.bar += 1;
-}
-
-#[no_mangle]
-pub extern "C" fn get(f: &Foo) -> i32 {
-    f.bar
-}
-
-#[no_mangle]
-pub extern "C" fn baz(f: &Foo) -> Baz {
-    f.baz
-}
-
-#[no_mangle]
-pub extern "C" fn fix(f: &mut Foo) {
-    f.baz.qux = 1.0 / (f.bar as f64);
-}
-
-#[no_mangle]
-pub extern fn del(f: *mut Foo) {
+pub extern "C" fn be_del(be: *mut Backend) {
     unsafe {
-        drop(Box::from_raw(f));
+        drop(Box::from_raw(be));
     }
+}
+
+#[no_mangle]
+pub extern "C" fn be_poke_later(be: &Backend, delay_ms: i32, msg: i32) {
+    be.spawn_poker(delay_ms, msg);
+}
+
+#[no_mangle]
+pub extern "C" fn be_poke_now(be: &Backend, msg: i32) {
+    be.poke(msg);
 }
